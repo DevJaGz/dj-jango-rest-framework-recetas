@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
+from django.conf import settings
+
 
 class UserManager(BaseUserManager):
     """Se encarga de proveer las funciones de ayuda para nuestra función de usuario principal"""
@@ -37,3 +39,27 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
     USERNAME_FIELD = "email"
+
+
+class Tag(models.Model):
+    """Modelo del Tag para la receta"""
+
+    name = models.CharField(max_length=255)
+    # on_delete=models.CASCADE = Si se borra el usuario todos los tags van a borrarse
+    # Automáticamente se crea como user_id
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class Ingredient(models.Model):
+    """Modelo del Ingrediente para la receta"""
+
+    name = models.CharField(max_length=255)
+    # on_delete=models.CASCADE = Si se borra el usuario todos los tags van a borrarse
+    # Automáticamente se crea como user_id
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
