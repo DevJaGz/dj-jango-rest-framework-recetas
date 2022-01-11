@@ -82,6 +82,59 @@ class PublicRecipeApiTests(TestCase):
         serializer = RecipeDetailSerializer(recipe)
         self.assertEqual(res.data, serializer.data)
 
+    def test_create_basic_recipe(self):
+        """Testea para crear receta"""
+        payload = {"title": "Test Recipe", "time_minutes": 30, "price": 10.00}
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data["id"])
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(recipe, key))
+
+    def test_create_recipe_with_tags(self):
+        """Testea para crear receta con Tags"""
+        tag1 = create_tag_sample(user=self.user, name="Tag 1")
+        tag2 = create_tag_sample(user=self.user, name="Tag 2")
+
+        payload = {
+            "title": "Test Recipe",
+            "time_minutes": 30,
+            "price": 10.00,
+            "tags": [tag1.id, tag2.id],
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data["id"])
+        tags = recipe.tags.all()
+        self.assertEqual(tags.count(), 2)
+        self.assertIn(tag1, tags)
+        self.assertIn(tag2, tags)
+
+    def test_create_recipe_with_ingredients(self):
+        """Testea para crear receta con Ingredients"""
+        ingredient1 = create_ingredient_sample(user=self.user, name="Ingredient 1")
+        ingredient2 = create_ingredient_sample(user=self.user, name="Ingredient 2")
+
+        payload = {
+            "title": "Test Recipe",
+            "time_minutes": 30,
+            "price": 10.00,
+            "ingredients": [ingredient1.id, ingredient2.id],
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.get(id=res.data["id"])
+        ingredients = recipe.ingredients.all()
+        self.assertEqual(ingredients.count(), 2)
+        self.assertIn(ingredient1, ingredients)
+        self.assertIn(ingredient2, ingredients)
+
 
 # class PrivateRecipeApiTests(TestCase):
 #     """Testea acceso no autenticado a la API"""
