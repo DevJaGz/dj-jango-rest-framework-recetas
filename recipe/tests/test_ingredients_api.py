@@ -50,3 +50,17 @@ class PublicIngredientsApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]["name"], ingredient.name)
+
+    def test_create_ingredient_successful(self):
+        """Testea que se cree un ingrediente correctamente"""
+        payload = {"name": "Chocolate"}
+        self.client.post(INGREDIENTS_URL, payload)
+
+        exists = Ingredient.objects.filter(user=self.user, name=payload["name"]).exists()
+        self.assertTrue(exists)
+
+    def test_create_ingredient_invalid(self):
+        """Testea que no se cree un ingrediente si es vacio"""
+        payload = {"name": ""}
+        res = self.client.post(INGREDIENTS_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

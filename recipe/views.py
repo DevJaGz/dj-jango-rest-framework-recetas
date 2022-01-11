@@ -5,7 +5,7 @@ from core.models import Tag, Ingredient
 from recipe import serializers
 
 
-class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
     """Manejar Tags en base de datos"""
 
     authentication_classes = (TokenAuthentication,)
@@ -17,8 +17,12 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
         """Retornan objetos para el usuario autenticado"""
         return self.queryset.filter(user=self.request.user).order_by("-name")
 
+    def perform_create(self, serializer):
+        """Crea nuevo tag"""
+        serializer.save(user=self.request.user)
 
-class IngredientViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+
+class IngredientViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
     """Manejar Ingredientes en base de datos"""
 
     authentication_classes = (TokenAuthentication,)
@@ -29,3 +33,7 @@ class IngredientViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         """Retornan objetos para el usuario autenticado"""
         return self.queryset.filter(user=self.request.user).order_by("-name")
+
+    def perform_create(self, serializer):
+        """Crea nuevo Ingrediente"""
+        serializer.save(user=self.request.user)
